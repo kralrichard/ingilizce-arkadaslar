@@ -26,8 +26,8 @@ const loadVoices = () => { voices = speechSynthesis.getVoices(); };
 loadVoices();
 speechSynthesis.onvoiceschanged = loadVoices;
 
-function speak(text, lang) {
-  if (!window.speechSynthesis) return;
+function speak(text, lang, onDone) {
+  if (!window.speechSynthesis) { if (onDone) onDone(); return; }
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang || 'en-GB';
@@ -35,34 +35,64 @@ function speak(text, lang) {
          || voices.find(x => x.lang.startsWith('en'));
   if (v) u.voice = v;
   u.rate = 0.92;
+  if (onDone) {
+    let fired = false;
+    const once = () => { if (!fired) { fired = true; onDone(); } };
+    u.onend = once;
+    u.onerror = once;
+    // ses motoru hiç başlamazsa da diyalog takılmasın
+    setTimeout(once, Math.min(1200 + text.length * 75, 9000));
+  }
   speechSynthesis.speak(u);
 }
 
 /* ---------------- arkadaş listesi ---------------- */
-async function boot() {
-  const r = await fetch('data/index.json');
-  S.index = await r.json();
-  $('#listSub').textContent =
-    S.index.friends.length + ' arkadaş · ' + S.index.total.toLocaleString('tr-TR') + ' cümle';
-  renderFriends('all');
+// Kancalar fetch'ten ÖNCE ve tek tek korumalı bağlanır: bir düğme eksik olsa bile
+// geri kalan düğmeler çalışmaya devam etsin (eskiden biri patlayınca hepsi ölüyordu).
+function on(sel, fn) {
+  const n = $(sel);
+  if (n) n.onclick = fn;
+  else console.warn('bulunamadi:', sel);
+}
 
+function wire() {
   document.querySelectorAll('#filters .chip').forEach(b => b.onclick = () => {
     document.querySelectorAll('#filters .chip').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     renderFriends(b.dataset.lvl);
   });
-  $('#btnBackChat').onclick = () => { speechSynthesis.cancel(); openFriend(S.friend.id); };
-  $('#btnTr').onclick = () => {
+  on('#btnBackList', () => go('list'));
+  on('#btnBackChat', backToFriend);
+  on('#btnTr', () => {
     S.showTr = !S.showTr;
     $('#screen-chat').classList.toggle('hide-tr', !S.showTr);
     $('#btnTr').style.opacity = S.showTr ? 1 : .45;
-  };
+  });
   document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     document.querySelectorAll('.tabpane').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     $('#tab-' + t.dataset.tab).classList.add('active');
   });
+}
+
+function backToFriend() {
+  speechSynthesis.cancel();
+  if (S.friend) openFriend(S.friend.id); else go('list');
+}
+
+async function boot() {
+  wire();
+  try {
+    const r = await fetch('data/index.json');
+    S.index = await r.json();
+  } catch (e) {
+    $('#listSub').textContent = 'Veri yüklenemedi. Sayfayı yenile.';
+    return;
+  }
+  $('#listSub').textContent =
+    S.index.friends.length + ' arkadaş · ' + S.index.total.toLocaleString('tr-TR') + ' cümle';
+  renderFriends('all');
 }
 
 function renderFriends(lvl) {
@@ -176,10 +206,19 @@ function nextTurn() {
       bubble('me', o.en, o.tr, 'Sen');
       S.turn++;
       box.innerHTML = '<div class="progress">…</div>';
-      setTimeout(nextTurn, 450);
+      // senin cümlen de sesli okunur; bitince arkadaşın devam eder
+      speak(o.en, f.voice, () => setTimeout(nextTurn, 250));
     };
     box.appendChild(b);
   });
+  box.appendChild(switchBtn());
+}
+
+// sohbetin içinden başka bir diyaloğa geçmek için
+function switchBtn() {
+  const b = el('button', 'btn ghost small', '↩ Başka bir diyalog seç');
+  b.onclick = backToFriend;
+  return b;
 }
 
 function finish() {
