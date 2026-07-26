@@ -51,7 +51,6 @@ async function boot() {
     b.classList.add('active');
     renderFriends(b.dataset.lvl);
   });
-  $('#btnInfo').onclick = () => $('#modal').hidden = false;
   $('#btnBackChat').onclick = () => { speechSynthesis.cancel(); openFriend(S.friend.id); };
   $('#btnTr').onclick = () => {
     S.showTr = !S.showTr;
