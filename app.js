@@ -22,9 +22,12 @@ function go(name) {
 
 /* ---------------- sesli okuma ---------------- */
 let voices = [];
-const loadVoices = () => { voices = speechSynthesis.getVoices(); };
+// Android WebView'de speechSynthesis hiç tanımlı değil: çıplak isimle okumak
+// ReferenceError atar ve buradan sonraki bütün betiği (bütün düğme bağlantıları
+// dahil) öldürür. Bu yüzden her erişim window üzerinden ve korumalı.
+const loadVoices = () => { voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; };
 loadVoices();
-speechSynthesis.onvoiceschanged = loadVoices;
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = loadVoices;
 
 function speak(text, lang, onDone) {
   if (!window.speechSynthesis) { if (onDone) onDone(); return; }
@@ -77,7 +80,7 @@ function wire() {
 }
 
 function backToFriend() {
-  speechSynthesis.cancel();
+  if (window.speechSynthesis) speechSynthesis.cancel();
   if (S.friend) openFriend(S.friend.id); else go('list');
 }
 
