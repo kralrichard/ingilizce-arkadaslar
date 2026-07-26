@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>22 Arkadaş — İngilizce Konuşma</title>
+<meta name="theme-color" content="#12151c">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>💬</text></svg>">
+</head>
+<body>
+
+<!-- ============ ARKADAŞ LİSTESİ ============ -->
+<section id="screen-list" class="screen active">
+  <header class="top">
+    <div>
+      <h1>22 Arkadaş</h1>
+      <p class="sub" id="listSub">İngilizce konuşma arkadaşların</p>
+    </div>
+    <button id="btnInfo" class="icon" title="Bilgi">ⓘ</button>
+  </header>
+
+  <div class="filters" id="filters">
+    <button class="chip active" data-lvl="all">Hepsi</button>
+    <button class="chip" data-lvl="A1">A1 · çok kolay</button>
+    <button class="chip" data-lvl="A2">A2 · kolay</button>
+    <button class="chip" data-lvl="B1">B1 · orta</button>
+    <button class="chip" data-lvl="B2">B2 · ileri</button>
+  </div>
+
+  <div id="friendGrid" class="grid"></div>
+  <p class="foot">Her arkadaşta <b>25 diyalog</b> · <b>1000 cümle</b> · toplam <b>22.000 cümle</b></p>
+</section>
+
+<!-- ============ ARKADAŞ PROFİLİ / DİYALOG SEÇİMİ ============ -->
+<section id="screen-friend" class="screen">
+  <header class="top">
+    <button class="icon" onclick="go('list')">‹</button>
+    <div id="friendHead" class="head"></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="scenes">Diyaloglar</button>
+    <button class="tab" data-tab="qa">Onu tanı</button>
+  </div>
+
+  <div id="tab-scenes" class="tabpane active">
+    <div id="sceneList" class="scenes"></div>
+  </div>
+
+  <div id="tab-qa" class="tabpane">
+    <p class="hint">Bu soruların cevabı hiç değişmez — arkadaşının hayatı sabittir.</p>
+    <div id="qaList" class="qa"></div>
+  </div>
+</section>
+
+<!-- ============ SOHBET ============ -->
+<section id="screen-chat" class="screen">
+  <header class="top chat-top">
+    <button class="icon" id="btnBackChat">‹</button>
+    <div id="chatHead" class="head"></div>
+    <button class="icon" id="btnTr" title="Türkçe göster/gizle">TR</button>
+  </header>
+  <div id="chatLog" class="log"></div>
+  <div id="choices" class="choices"></div>
+</section>
+
+<!-- ============ BİLGİ ============ -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <h2>Nasıl çalışır?</h2>
+    <ul>
+      <li><b>22 arkadaş</b>, her biri farklı şehirde, farklı işte, farklı İngilizce seviyesinde.</li>
+      <li>Her arkadaşta <b>25 farklı sahne</b> var: kafe, kahvaltı, restoran, tatil, otel, havaalanı, maç, futbol muhabbeti, TV haberleri, iş, alışveriş, sağlık, spor, ev, müzik, doğum günü, aile ve daha fazlası.</li>
+      <li>Her sahne <b>10 tur</b> sürer. Her turda arkadaşın konuşur, sen <b>3 cevaptan</b> birini seçersin.</li>
+      <li>Bir arkadaşta <b>1000 cümle</b>, toplamda <b>22.000 cümle</b>.</li>
+      <li>Cevaplar <b>sabittir</b>: aynı soruyu tekrar sorduğunda aynı cevabı alırsın. Karakterlerin hayatı değişmez.</li>
+      <li><b>TR</b> düğmesiyle Türkçesini açıp kapatabilirsin. Cümlelere dokununca sesli okunur.</li>
+    </ul>
+    <button class="btn" onclick="document.getElementById('modal').hidden=true">Anladım</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
